@@ -1,4 +1,5 @@
 var express = require("express");
+var exphbs = require("express-handlebars");
 var logger = require("morgan");
 var mongoose = require("mongoose");
 
@@ -30,44 +31,68 @@ app.use(express.static("public"));
 var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/newsScrape";
 mongoose.connect(MONGODB_URI, { useNewUrlParser: true });
 
+
+// Handlebars
+app.engine(
+    "handlebars",
+    exphbs({
+        defaultLayout: "main"
+    })
+);
+app.set("view engine", "handlebars");
+
 // Routes
 
-// A GET route for scraping the echoJS website
-app.get("/scrape", function(req, res) {
-  // First, we grab the body of the html with axios
-  axios.get("https://www.washingtonpost.com/").then(function(response) {
-    // Then, we load that into cheerio and save it to $ for a shorthand selector
-    var $ = cheerio.load(response.data);
-
-    // Now, we grab every h2 within an article tag, and do the following:
-    $(".flex-stack-text").each(function(i, element) {
-      // Save an empty result object
-      var result = {};
-
-      // Add the text and href of every link, and save them as properties of the result object
-      result.title = $(this)
-        .children(".headline")
-        .children("a")
-        .text();
-      result.link = $(this)
-        .children(".headline")
-        .children("a")
-        .attr("href");
-      result.blurb = $(this)
-        .children(".blurb")
-        .text();
-
-      // Create a new Article using the `result` object built from scraping
-      db.Article.create(result)
-        .then(function(dbArticle) {
-          // View the added result in the console
-          console.log(dbArticle);
+app.get("/", function (req, res) {
+    db.Article.find({})
+        .then(function (found) {
+            return res.render("articles", {
+                article: found
+            });
         })
-        .catch(function(err) {
-          // If an error occurred, log it
-          console.log(err);
+});
+
+// A GET route for scraping the echoJS website
+app.get("/scrape", function (req, res) {
+    // First, we grab the body of the html with axios
+    axios.get("https://www.washingtonpost.com/").then(function (response) {
+        // Then, we load that into cheerio and save it to $ for a shorthand selector
+        var $ = cheerio.load(response.data);
+
+        // Now, we grab every h2 within an article tag, and do the following:
+        $(".flex-stack-text").each(function (i, element) {
+            // Save an empty result object
+            var result = {};
+
+            // Add the text and href of every link, and save them as properties of the result object
+            result.title = $(this)
+                .children(".headline")
+                .children("a")
+                .text();
+            result.link = $(this)
+                .children(".headline")
+                .children("a")
+                .attr("href");
+            result.blurb = $(this)
+                .children(".blurb")
+                .text();
+
+            //Check to see if this article already exists in the db before adding
+            db.Article.find({ title: result.title }).then(function (foundExisting) {
+                if (foundExisting.length === 0) {
+                    // Create a new Article using the `result` object built from scraping
+                    db.Article.create(result)
+                        .then(function (dbArticle) {
+                            // View the added result in the console
+                            console.log(dbArticle);
+                        })
+                        .catch(function (err) {
+                            // If an error occurred, log it
+                            console.log(err);
+                        });
+                }
+            });
         });
-    });
 
     // Send a message to the client
     res.send("Scrape Complete");

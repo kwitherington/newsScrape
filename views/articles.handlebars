@@ -1,0 +1,79 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="/">newsScrape</a>
+    <button class="navbar-toggler" data-toggle="collapse" data-target="#navbarColor01" aria-controls="navbarColor01"
+        aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarColor01">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+                <a class="nav-link" href="/">Home
+                    <span class="sr-only">(current)</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <button class="btn btn-outline-info my-2 my-sm-0 scrape-new">SCRAPE NEW ARTICLES!</button>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div class="jumbotron text-center">
+    <div class="overlay">
+    </div>
+    <div class="background-image">
+    </div>
+    <div class="caption">
+        <h1 class="display-1 text-light">newsScrape</h1>
+        {{!-- <p class="display-4 text-light">your news central for all your news sources</p> --}}
+    </div>
+</div>
+
+{{!-- modal for leaving comments --}}
+
+<!-- Modal -->
+<div id="commentModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Leave A Comment!</h4>
+      </div>
+      <div class="modal-body">
+        <p><textarea class="form-control commentText" rows="5" placeholder="Enter Comment Here"></textarea></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-outline-info" id="saveComment" data-id="" data-dismiss="modal">Comment</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="container-fluid articles" id="articles">
+    {{#each article}}
+
+    <div data-id={{this._id}} class="card">
+        <div class="card-header">
+            <h3 data-id={{this._id}}>
+                <a class="article-link text-dark" target="_blank" rel="noopener noreferrer" href={{this.link}}>{{this.title}}</a>
+                <a data-id={{this._id}} class="btn btn-outline-info commentStart" data-toggle="modal" data-target="#commentModal">Comment</a>
+            </h3>
+        </div>
+        <div data-id={{this._id}} class="card-body">{{this.blurb}}</div>
+        <div class="card-body">{{this.note}}</div>
+    </div>
+
+    <div id="notes"></div>
+    {{/each}}
+
+</div>
+
+<footer class="footer">
+    <div class="container">
+        <p>News Scraper in BETA currently supporting Washington Post.. more sources to come</p>
+    </div>
+</footer>

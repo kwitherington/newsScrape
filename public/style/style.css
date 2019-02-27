@@ -1,0 +1,13 @@
+.jumbotron {
+    background-image: url("./newspaper.jpg");
+    opacity: 0.5;
+    background-size: cover;
+}
+
+.display-1 {
+    text-shadow: 2px 2px 4px #000000;
+}
+
+.card {
+    margin: 10px
+}
